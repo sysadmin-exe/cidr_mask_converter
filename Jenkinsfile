@@ -3,7 +3,7 @@ pipeline {
 
   stages {
 // stage('PR ONLY - Install App Dependencies') {
-//       when {
+//      when {
 //         not {
 //           anyOf{
 //             branch 'master'
@@ -18,7 +18,7 @@ pipeline {
 //         virtualenv victor
 //         ls
 //         source victor/bin/activate
-//         pip install -r requirements.txt
+//        pip install -r requirements.txt
 //         """
 //       }
 //     }
