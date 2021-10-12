@@ -1,4 +1,4 @@
-pipeline {
+pip3eline {
   agent any
 
   stages {
@@ -8,11 +8,11 @@ pipeline {
 //         _sh """
 //         echo 'installing app build requirements'
 //         cd cidr_convert_api/python
-//         pip install virtualenv
+//         pip3 install virtualenv
 //         virtualenv victor
 //         ls
 //         source victor/bin/activate
-//         pip install -r requirements.txt
+//         pip3 install -r requirements.txt
 //         """
 //       }
 //     }
@@ -39,11 +39,11 @@ pipeline {
         steps {
           _sh """
           echo 'installing app build requirements'
-          pip install virtualenv
+          pip3 install virtualenv
           virtualenv victor
           ls
           source victor/bin/activate
-          pip install -r requirements.txt
+          pip3 install -r requirements.txt
           """
         }
       }
