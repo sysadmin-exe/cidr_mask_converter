@@ -6,7 +6,7 @@ pipeline {
 //       when {
 //         not {
 //           anyOf{
-//             branch 'master'
+//             branch 'feature'
 //           }
 //         }
 //       }
@@ -27,7 +27,7 @@ pipeline {
 //       when {
 //         not {
 //           anyOf{
-//             branch 'master'
+//             branch 'feature'
 //           }
 //         }
 //       }
@@ -41,21 +41,21 @@ pipeline {
 //       when {
 //         not {
 //           anyOf{
-//             branch 'master'
+//             branch 'feature'
 //           }
 //         }
 //       }
 //       steps {
 //         sh 'echo "docker build phase"'
-//         sh 'docker build  -f cidr_convert_api/python/Dockerfile -t wizelinedevops/victor-efedi:cidr_app.V${BUILD_NUMBER} .'
-//         sh 'docker rmi wizelinedevops/victor-efedi:cidr_app.V${BUILD_NUMBER}'
+//         sh 'docker build  -f cidr_convert_api/python/Dockerfile -t wizelinedevops/cidr:cidr_app.V${BUILD_NUMBER} .'
+//         sh 'docker rmi wizelinedevops/cidr:cidr_app.V${BUILD_NUMBER}'
 //       }
 //     }
 
     stage('Install App Dependencies') {
         when {
           anyOf {
-            branch 'master'
+            branch 'feature'
           }
         }
         steps {
@@ -73,7 +73,7 @@ pipeline {
     stage('test') {
       when {
         anyOf {
-          branch 'master'
+          branch 'feature'
         }
       }
       steps {
@@ -85,32 +85,32 @@ pipeline {
     stage('Build Image') {
       when {
         anyOf {
-          branch 'master'
+          branch 'feature'
         }
       }
       steps {
         sh 'echo "docker build phase"'
-        sh 'docker build  -f cidr_convert_api/python/Dockerfile -t xxx/victor-efedi:cidr_app.V${BUILD_NUMBER} .'
+        sh 'docker build  -f cidr_convert_api/python/Dockerfile -t cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
       }
     }
 
     stage('Push Image') {
       when {
         anyOf {
-          branch 'master'
+          branch 'feature'
         }
       }
       steps{
         sh 'echo "Pushing Image to Docker Hub"'
-        sh 'docker push xxx/victor-efedi:cidr_app.V${BUILD_NUMBER}'
-        sh 'docker rmi xxx/victor-efedi:cidr_app.V${BUILD_NUMBER}'
+        sh 'docker push cheedee/cidr:cidr_app.V${BUILD_NUMBER}'
+        sh 'docker rmi cheedee/cidr:cidr_app.V${BUILD_NUMBER}'
       }
     } 
 
     stage('Deploy to server') {
       when {
         anyOf {
-          branch 'master'
+          branch 'feature'
         }
       }
       steps{
