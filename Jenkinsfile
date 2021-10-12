@@ -107,17 +107,7 @@ pipeline {
       }
     } 
 
-    stage('Deploy to server') {
-      when {
-        anyOf {
-          branch 'feature'
-        }
-      }
-      steps{
-        //script to deploy the docker image goes here
-
-      }
-    }  
+    
   }
 }
 
