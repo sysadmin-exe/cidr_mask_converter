@@ -34,15 +34,16 @@ pipeline {
 //       }
 //     }
 
-    stage('Install App Dependencies') {
-        
-        steps {
-          _sh """
-          echo 'installing app build requirements'
-          pip install -r requirements.txt
-          """
+    stage ('Install App dependencies'){
+            steps{
+                withPythonEnv('python3.7'){
+                _sh """
+                echo 'installing app build requirements'
+                pip install -r requirements.txt
+                """
+                }
+            }
         }
-      }
 
     stage('test') {
       
