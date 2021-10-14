@@ -34,22 +34,20 @@ pipeline {
 //       }
 //     }
 
-    stage ('Install App dependencies'){
-            steps{
-                withPythonEnv('python3.7'){
-                _sh """
-                echo 'installing app build requirements'
-                pip install -r requirements.txt
-                """
-                }
-            }
+    stage('Install App Dependencies') {
+        
+        steps {
+          _sh """
+          echo 'installing app build requirements'
+          pip install -r requirements.txt
+          """
         }
-
+      }
     stage('test') {
       
       steps {
         sh 'echo "testing the code"'
-        sh 'python cidr_convert_api/python/tests.py'
+        sh 'python tests.py'
       }  
     }
 
