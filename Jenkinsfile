@@ -43,16 +43,13 @@ pipeline {
           """
         }
       }
-   stage ('Run tests'){
-            steps {
-                withPythonEnv('python3.7'){
-                _sh """
-                echo 'running test on the code'
-                python tests.py
-                """
-                }
-            }
-        }
+    stage('test') {
+      
+      steps {
+        sh 'echo "testing the code"'
+        sh 'python tests.py'
+      }  
+    }
 
     stage('Build Image') {
      
