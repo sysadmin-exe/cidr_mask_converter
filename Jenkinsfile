@@ -39,10 +39,6 @@ pipeline {
         steps {
           _sh """
           echo 'installing app build requirements'
-          pip install virtualenv
-          virtualenv victor
-          ls
-          source victor/bin/activate
           pip install -r requirements.txt
           """
         }
