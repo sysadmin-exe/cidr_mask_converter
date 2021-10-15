@@ -77,7 +77,7 @@ pipeline {
             }
         
         }
-}
+    }
 }
 
 def _sh (shell_command) {
