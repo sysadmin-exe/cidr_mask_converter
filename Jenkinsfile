@@ -62,7 +62,7 @@ pipeline {
 stage('Deploy Docker Image') {
             steps {
                 script {
-                 withCredentials([string(credentialsId: 'Docker Hub', variable: 'dockerhubpwd')]) {
+                 withCredentials([string(credentialsId: 'docker', variable: 'dockerhubpwd')]) {
                     sh 'docker login -u cheedee -p ${dockerhubpwd}'
                  }  
                  sh 'docker push cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
