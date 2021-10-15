@@ -59,14 +59,16 @@ pipeline {
       }
     }
 
-    stage('Push Image') {
-      
-      steps{
-        sh 'echo "Pushing Image to Docker Hub"'
-        sh 'docker push cheedee/cidr:cidr_app.V${BUILD_NUMBER}'
-        sh 'docker rmi cheedee/cidr:cidr_app.V${BUILD_NUMBER}'
-      }
-    } 
+stage('Deploy Docker Image') {
+            steps {
+                script {
+                 withCredentials([string(credentialsId: 'Docker Hub', variable: 'dockerhubpwd')]) {
+                    sh 'docker login -u cheedee -p ${dockerhubpwd}'
+                 }  
+                 sh 'docker push cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
+                }
+            }
+}
 
     
   }
