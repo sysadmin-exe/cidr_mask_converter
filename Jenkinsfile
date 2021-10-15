@@ -48,6 +48,8 @@ pipeline {
                 sh 'echo "building docker image"'
                 script{
                     dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                    //remove image from jenkins server
+                    sh 'docker rmi  ${dockerImage.imageName()} -f'
                 }
             }
         }
