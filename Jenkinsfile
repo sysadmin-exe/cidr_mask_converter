@@ -61,7 +61,7 @@ pipeline {
             steps{
                 sh 'echo "building docker image"'
                 script{
-                    dockerImage =  docker.build registry + ":$BUILD_NUMBER"
+                    dockerImage =  docker.build registry + ":latest"
                 }
             }
         }
@@ -76,6 +76,19 @@ pipeline {
                 }
             }
         
+        }
+        stage ('Deploy to server'){
+            steps{
+              //uses the ssh agent to run the image on a container
+                sh 'echo "Deploying to running VM"'
+                script{
+                    def dockerRun = 'docker run -p 8000:8000 -d --name cidrconverter cheedee/cidr:latest'
+                    sshagent(['sshkey']) {
+                     sh "ssh -o StrictHostKeyChecking=no chidi@172.31.146.172 ${dockerRun}"
+                     }
+                }
+
+            } 
         }
     }
 }
