@@ -65,19 +65,18 @@ pipeline {
       }
     }
 
-stage('Deploy Docker Image') {
-            steps {
-                script {
-                 withCredentials([string(credentialsId: 'docker', variable: 'dockerhubpwd')]) {
-                    sh 'docker login -u cheedee -p ${dockerhubpwd}'
-                 }  
-                 sh 'docker push cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
+        stage ('Push Image'){
+           steps{
+                sh 'echo "Push docker image"'
+                script{
+                    docker.withRegistry( '', registryCredential ) { 
+                    dockerImage.push() 
+                    }    
                 }
             }
+        
+        }
 }
-
-    
-  }
 }
 
 def _sh (shell_command) {
