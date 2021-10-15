@@ -69,7 +69,7 @@ pipeline {
               //uses the ssh agent to run the image on a container
                 sh 'echo "Deploying to running Azure VM"'
                 script{
-                    def dockerRun = 'docker run -p 8080:8080 -d --name my-cidrproj swaydevstan/cidrproj:latest'
+                    def dockerRun = 'docker run -p 8000:8000 -d --name my-cidrproj swaydevstan/cidrproj:latest'
                     sshagent(['sshazurevm']) {
                      sh "ssh -o StrictHostKeyChecking=no stanley@linuxvmstan.eastus.cloudapp.azure.com ${dockerRun}"
                      }
