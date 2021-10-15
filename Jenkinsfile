@@ -55,7 +55,7 @@ pipeline {
      
       steps {
         sh 'echo "docker build phase"'
-        sh 'docker build  -f cidr_convert_api/python/Dockerfile -t cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
+        sh 'docker build  -f Dockerfile -t cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
       }
     }
 
