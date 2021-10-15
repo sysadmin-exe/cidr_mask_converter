@@ -47,7 +47,7 @@ pipeline {
       
       steps {
         sh 'echo "testing the code"'
-        sh 'python tests.py'
+        sh 'python3 tests.py'
       }  
     }
 
