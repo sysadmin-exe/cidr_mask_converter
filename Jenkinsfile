@@ -1,4 +1,10 @@
 pipeline {
+    environment{
+       registry = "cheedee/cidr"
+       registryCredential = 'dockerhub'
+       dockerImage = ''
+
+    }
   agent any
 
   stages {
