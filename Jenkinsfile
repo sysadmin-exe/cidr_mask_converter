@@ -82,7 +82,7 @@ pipeline {
               //uses the ssh agent to run the image on a container
                 sh 'echo "Deploying to running VM"'
                 script{
-                    def dockerRun = 'docker run -p 8000:8000 -d --name cidrconverter cheedee/cidr:latest'
+                    def dockerRun = 'docker run -p 8000:8000 -d --name cidrproject cheedee/cidr:latest'
                     sshagent(['sshkey']) {
                      sh "ssh -o StrictHostKeyChecking=no chidi@172.31.146.172 ${dockerRun}"
                      }
