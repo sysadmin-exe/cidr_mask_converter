@@ -57,13 +57,14 @@ pipeline {
       }  
     }
 
-    stage('Build Image') {
-     
-      steps {
-        sh 'echo "docker build phase"'
-        sh 'docker build  -f Dockerfile -t cheedee/cidr:cidr_app.V${BUILD_NUMBER} .'
-      }
-    }
+        stage ('Build Image'){
+            steps{
+                sh 'echo "building docker image"'
+                script{
+                    dockerImage =  registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
 
         stage ('Push Image'){
            steps{
