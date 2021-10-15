@@ -1,7 +1,7 @@
 pipeline {
     environment{
        registry = "cheedee/cidr"
-       registryCredential = 'dockerhub'
+       registryCredential = 'docker'
        dockerImage = ''
 
     }
