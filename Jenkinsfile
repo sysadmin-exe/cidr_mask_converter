@@ -1,15 +1,15 @@
 pipeline {
+    environment{
+       registry = "cheedee/cidr"
+       registryCredential = 'docker'
+       dockerImage = ''
+
+    }
   agent any
 
   stages {
 // stage('PR ONLY - Install App Dependencies') {
-//       when {
-//         not {
-//           anyOf{
-//             branch 'master'
-//           }
-//         }
-//       }
+//       
 //       steps {
 //         _sh """
 //         echo 'installing app build requirements'
@@ -24,13 +24,7 @@ pipeline {
 //     }
 
 //     stage('PR ONLY - test') {
-//       when {
-//         not {
-//           anyOf{
-//             branch 'master'
-//           }
-//         }
-//       }
+//       
 //       steps {
 //         sh 'echo "testing the code"'
 //         sh 'python cidr_convert_api/python/tests.py'
@@ -38,87 +32,65 @@ pipeline {
 //     }
 
 //     stage('PR ONLY - Build Image') {
-//       when {
-//         not {
-//           anyOf{
-//             branch 'master'
-//           }
-//         }
-//       }
+//       
 //       steps {
 //         sh 'echo "docker build phase"'
-//         sh 'docker build  -f cidr_convert_api/python/Dockerfile -t wizelinedevops/victor-efedi:cidr_app.V${BUILD_NUMBER} .'
-//         sh 'docker rmi wizelinedevops/victor-efedi:cidr_app.V${BUILD_NUMBER}'
+//         sh 'docker build  -f cidr_convert_api/python/Dockerfile -t wizelinedevops/cidr:cidr_app.V${BUILD_NUMBER} .'
+//         sh 'docker rmi wizelinedevops/cidr:cidr_app.V${BUILD_NUMBER}'
 //       }
 //     }
 
     stage('Install App Dependencies') {
-        when {
-          anyOf {
-            branch 'master'
-          }
-        }
+        
         steps {
           _sh """
           echo 'installing app build requirements'
-          pip install virtualenv
-          virtualenv victor
-          ls
-          source victor/bin/activate
           pip install -r requirements.txt
           """
         }
       }
-
     stage('test') {
-      when {
-        anyOf {
-          branch 'master'
-        }
-      }
+      
       steps {
         sh 'echo "testing the code"'
-        sh 'python cidr_convert_api/python/tests.py'
+        sh 'python3 tests.py'
       }  
     }
 
-    stage('Build Image') {
-      when {
-        anyOf {
-          branch 'master'
+        stage ('Build Image'){
+            steps{
+                sh 'echo "building docker image"'
+                script{
+                    dockerImage =  docker.build registry + ":latest"
+                }
+            }
         }
-      }
-      steps {
-        sh 'echo "docker build phase"'
-        sh 'docker build  -f cidr_convert_api/python/Dockerfile -t xxx/victor-efedi:cidr_app.V${BUILD_NUMBER} .'
-      }
+
+        stage ('Push Image'){
+           steps{
+                sh 'echo "Push docker image"'
+                script{
+                    docker.withRegistry( '', registryCredential ) { 
+                    dockerImage.push() 
+                    }    
+                }
+            }
+        
+        }
+        stage ('Deploy to server'){
+            steps{
+              //uses the ssh agent to run the image on a container
+                sh 'echo "Deploying to running VM"'
+                script{
+                    def dockerRun = 'docker run -p 8000:8000 -d --name cidrproject cheedee/cidr:latest'
+                    sshagent(['sshkey']) {
+                     sh "ssh -o StrictHostKeyChecking=no chidi@172.31.146.172 ${dockerRun}"
+                     }
+                }
+
+            } 
+        }
     }
-
-    stage('Push Image') {
-      when {
-        anyOf {
-          branch 'master'
-        }
-      }
-      steps{
-        sh 'echo "Pushing Image to Docker Hub"'
-        sh 'docker push xxx/victor-efedi:cidr_app.V${BUILD_NUMBER}'
-        sh 'docker rmi xxx/victor-efedi:cidr_app.V${BUILD_NUMBER}'
-      }
-    } 
-
-    stage('Deploy to server') {
-      when {
-        anyOf {
-          branch 'master'
-        }
-      }
-      steps{
-        //script to deploy the docker image goes here
-
-      }
-    }  
-  }
 }
 
 def _sh (shell_command) {
