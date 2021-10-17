@@ -1,130 +1,90 @@
 pipeline {
-  agent any
+    environment{
+       registry = "swaydevstan/cidrproj"
+       registryCredential = 'dockerhub'
+       dockerImage = ''
 
-  stages {
-// stage('PR ONLY - Install App Dependencies') {
-//       when {
-//         not {
-//           anyOf{
-//             branch 'master'
-//           }
-//         }
-//       }
-//       steps {
-//         _sh """
-//         echo 'installing app build requirements'
-//         cd cidr_convert_api/python
-//         pip install virtualenv
-//         virtualenv victor
-//         ls
-//         source victor/bin/activate
-//         pip install -r requirements.txt
-//         """
-//       }
-//     }
-
-//     stage('PR ONLY - test') {
-//       when {
-//         not {
-//           anyOf{
-//             branch 'master'
-//           }
-//         }
-//       }
-//       steps {
-//         sh 'echo "testing the code"'
-//         sh 'python cidr_convert_api/python/tests.py'
-//       }  
-//     }
-
-//     stage('PR ONLY - Build Image') {
-//       when {
-//         not {
-//           anyOf{
-//             branch 'master'
-//           }
-//         }
-//       }
-//       steps {
-//         sh 'echo "docker build phase"'
-//         sh 'docker build  -f cidr_convert_api/python/Dockerfile -t wizelinedevops/victor-efedi:cidr_app.V${BUILD_NUMBER} .'
-//         sh 'docker rmi wizelinedevops/victor-efedi:cidr_app.V${BUILD_NUMBER}'
-//       }
-//     }
-
-    stage('Install App Dependencies') {
-        when {
-          anyOf {
-            branch 'master'
-          }
-        }
-        steps {
-          _sh """
-          echo 'installing app build requirements'
-          pip install virtualenv
-          virtualenv victor
-          ls
-          source victor/bin/activate
-          pip install -r requirements.txt
-          """
-        }
-      }
-
-    stage('test') {
-      when {
-        anyOf {
-          branch 'master'
-        }
-      }
-      steps {
-        sh 'echo "testing the code"'
-        sh 'python cidr_convert_api/python/tests.py'
-      }  
     }
+    agent any
+    
+    stages{
 
-    stage('Build Image') {
-      when {
-        anyOf {
-          branch 'master'
+        stage ('Checkout branch'){
+            steps {
+                script{
+                    checkout([$class: 'GitSCM', branches: [[name: 'develop-stanley']], extensions: [], userRemoteConfigs: [[credentialsId: '001git', url: 'https://github.com/sysadmin-exe/cidr_mask_converter.git']]])
+                }
+          
+            }
         }
-      }
-      steps {
-        sh 'echo "docker build phase"'
-        sh 'docker build  -f cidr_convert_api/python/Dockerfile -t xxx/victor-efedi:cidr_app.V${BUILD_NUMBER} .'
-      }
+
+        stage ('Install App dependencies'){
+            steps{
+                withPythonEnv('python3.7'){
+                //uses the Pyenv Pipeline Plugin method to create the virtual environment and install requirements
+                _sh """
+                echo 'installing app build requirements'
+                pip install -r requirements.txt
+                """
+                }
+            }
+        }
+
+        stage ('Run tests'){
+            steps {
+              //used the Pyenv Pipeline Plugin method to create the virtual environment and run the test
+                withPythonEnv('python3.7'){
+                _sh """
+                echo 'running test on the code'
+                python tests.py
+                """
+                }
+            }
+        }
+
+        stage ('Build Image'){
+            steps{
+              //uses the docker pipeline plugin entered the environments variable previously, which was used to build and push the images
+                sh 'echo "building docker image"'
+                script{
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER"
+                }
+            }
+        }
+
+        stage ('Push Image'){
+           steps{
+                sh 'echo "Push docker image"'
+                script {
+                    docker.withRegistry( '', registryCredential ) { 
+                    dockerImage.push() 
+                     //remove image from jenkins server
+                    sh "docker rmi  ${dockerImage.imageName()} -f"
+                    }    
+                }
+            }
+        
+        }
+
+        stage ('Deploy to server'){
+            steps{
+              //uses the ssh agent to run the image on a container
+                sh 'echo "Deploying to running Azure VM"'
+                script{
+                    def dockerRun = 'docker run -p 8000:8000 -d --name my-cidrproj swaydevstan/cidrproj:latest'
+                    sshagent(['sshazurevm']) {
+                     sh "ssh -o StrictHostKeyChecking=no stanley@linuxvmstan.eastus.cloudapp.azure.com ${dockerRun}"
+                     }
+                }
+
+            } 
+        }  
     }
-
-    stage('Push Image') {
-      when {
-        anyOf {
-          branch 'master'
-        }
-      }
-      steps{
-        sh 'echo "Pushing Image to Docker Hub"'
-        sh 'docker push xxx/victor-efedi:cidr_app.V${BUILD_NUMBER}'
-        sh 'docker rmi xxx/victor-efedi:cidr_app.V${BUILD_NUMBER}'
-      }
-    } 
-
-    stage('Deploy to server') {
-      when {
-        anyOf {
-          branch 'master'
-        }
-      }
-      steps{
-        //script to deploy the docker image goes here
-
-      }
-    }  
-  }
 }
 
 def _sh (shell_command) {
   sh """
   #!/bin/bash -e
-
   $shell_command
   """
 }
